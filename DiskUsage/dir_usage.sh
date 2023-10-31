@@ -37,7 +37,7 @@ while IFS= read -r line; do
     dir_path=$(echo $line | awk '{print $2}')
 
     if [ $dir_path == / ]; then
-        dir_size=$(du -sh -x / | awk '{print$1}')
+        dir_size=$(du -sh -x / 2>/dev/null | awk '{print$1}')
     else
         dir_size=$(echo $line | awk '{print $1}')
     fi
@@ -58,7 +58,7 @@ while IFS= read -r line; do
     dir_path_k=$(echo $line | awk '{print $2}')
 
     if [ $dir_path_k == / ]; then
-        dir_size_k=$(du -sk -x / | awk '{print$1}')
+        dir_size_k=$(du -sk -x / 2>/dev/null | awk '{print$1}')
     else
         dir_size_k=$(echo $line | awk '{print $1}')
     fi
