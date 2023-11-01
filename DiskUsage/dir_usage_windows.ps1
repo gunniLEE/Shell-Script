@@ -44,29 +44,23 @@ if ($directoryPath -eq "all") {
         $volume_list += "$driveLetter" + ":\"
     }
 
+    $volume_list_length = $volume_list.Count
+
     Write-Host "Drives you have: $($volume_list -join ', ')" 
 
-    # foreach ($volume in $volumes) {
-    #     $sizeGB = "{0:F2}" -f ($volume.Size / 1GB)
-    #     $usedSpaceGB = "{0:F2}" -f ($volume.SizeRemaining / 1GB)
-    #     $freeSpaceGB = "{0:F2}" -f ($volume.SizeUsed / 1GB)
-    
-    #     Write-Host "Volume Label: $($volume.FileSystemLabel)"
-    #     Write-Host "Drive Letter: $($volume.DriveLetter)"
-    #     Write-Host "File System: $($volume.FileSystemType)"
-    #     Write-Host "Drive Type: $($volume.DriveType)"
-    # }
-
-    foreach ($driveLetter in $volume_list) {        
+    for ($i = 0; $i -lt $volume_list.Length; $i++) {
+    # foreach ($driveLetter in $volume_list) {        
         # directory check under the drive
-        $folders = Get-ChildItem -Path $driveLetter -Directory -Recurse -Depth $maxDepth -ErrorAction SilentlyContinue
-
+        $folders = Get-ChildItem -Path $volume_list[$i] -Directory -Recurse -Depth $maxDepth -ErrorAction SilentlyContinue
         $folderDetails = @()
         # Process each folder and calculate size and file count
-        $totalSpace = (Get-ChildItem -Path $driveLetter -File -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum / 1GB
-        $totalSpace = [math]::Round($totalSpace, 2)
-        Write-Host "This Drive is $driveLetter. Let me Check."
-        Write-Host "($driveLetter) total used space is: $totalSpace GB"
+        $totalSpace = "{0:F2}" -f ($volume_info[$i].Size / 1GB)
+        $usedSpace = "{0:F2}" -f ($volume_info[$i].SizeRemaining / 1GB)
+        $remainSpace = $totalSpace - $usedSpace 
+
+        Write-Host "This Drive is $($volume_list[$i]). Let me Check."
+        Write-Host "$($volume_list[$i].ToString()) total space is : $totalSpace. total used space is: $remainSpace GB"
+
 
         for ($i = 0; $i -lt $folders.Count; $i++) {
             $folderPath = $folders[$i].FullName
@@ -98,9 +92,22 @@ if ($directoryPath -eq "all") {
     $folderDetails = @()
     
     # Process each folder and calculate size and file count
-    $totalSpace = (Get-ChildItem -Path $directoryPath -File -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum / 1GB
-    $totalSpace = [math]::Round($totalSpace, 2)
-    Write-Host "($directoryPath) total used space is: $totalSpace GB"
+    if ($volume_list -contains $directoryPath) {
+        $directoryLetter = $directoryPath.Substring(0, 1)
+
+        $DriveInfo = $volume_info | Where-Object { $_.DriveLetter -eq $directoryLetter}
+        $totalSpace = "{0:F2}" -f ($DriveInfo.Size / 1GB)
+        $usedSpace = "{0:F2}" -f ($DriveInfo.SizeRemaining / 1GB)
+        $remainSpace = $totalSpace - $usedSpace
+
+        Write-Host "($directoryPath) total space is: $totalSpace GB. total used space is: $remainSpace GB"
+    }
+    else {
+        $totalSpace = (Get-ChildItem -Path $directoryPath -File -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum / 1GB
+        $totalSpace = [math]::Round($totalSpace, 2)
+
+        Write-Host "($directoryPath) total used space is: $totalSpace GB"
+    }
     
     for ($i = 0; $i -lt $folders.Count; $i++) {
         $folderPath = $folders[$i].FullName
@@ -116,7 +123,7 @@ if ($directoryPath -eq "all") {
         $result = [PSCustomObject]@{
             DiskSize_GB = $volumesizeGB
             Used_GB = [math]::Round($folderSize, 2)
-            Used_Percent = [math]::Round($UsagePercentage, 2).Tostring() + "%"  # 소수점 2자리까지 반올림
+            Used_Percent = [math]::Round($UsagePercentage, 2).Tostring() + "%"
             VolumeName = "$volumeName Drive"
             Path = $folderPath
         }
