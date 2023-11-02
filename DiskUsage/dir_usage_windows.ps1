@@ -1,5 +1,16 @@
 # Input the directory path
-$directoryPath = Read-Host "Enter the directory path to check (if you want to check all Disk (Ex> C:\ and D:\ etc) Enter the 'all')): "
+$validPath = $false
+while (-not $validPath) {
+    $directoryPath = Read-Host "Enter the directory path to check (if you want to check all Disk (Ex> C:\ and D:\ etc) Enter the 'all')): "
+
+    if (Test-Path -Path $directoryPath -PathType Container) {
+        $validPath = $true
+    } else {
+        Write-Host "Invalid directory path. Please enter a valid directory path."
+    }
+}
+
+#$directoryPath = Read-Host "Enter the directory path to check (if you want to check all Disk (Ex> C:\ and D:\ etc) Enter the 'all')): "
 
 # Set the depth for directory usage check
 $maxDepth = Read-Host "Enter the depth (please enter as a number): "
