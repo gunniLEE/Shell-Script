@@ -1,7 +1,7 @@
 # Input the directory path
 $validPath = $false
 while (-not $validPath) {
-    $directoryPath = Read-Host "Enter the directory path to check (if you want to check all Disk (Ex> C:\ and D:\ etc) Enter the 'all')): "
+    $directoryPath = Read-Host "Enter the directory path to check (if you want to check all Disk (Ex> C:\ and D:\ etc) Enter the 'all'))"
 
     if (Test-Path -Path $directoryPath -PathType Container) {
         $validPath = $true
@@ -13,7 +13,7 @@ while (-not $validPath) {
 #$directoryPath = Read-Host "Enter the directory path to check (if you want to check all Disk (Ex> C:\ and D:\ etc) Enter the 'all')): "
 
 # Set the depth for directory usage check
-$maxDepth = Read-Host "Enter the depth (please enter as a number): "
+$maxDepth = Read-Host "Enter the depth (please enter as a number)"
 Write-Host "Selected Depth: $maxDepth"
 
 # Define a function to calculate folder size and cache the result
